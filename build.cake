@@ -52,9 +52,7 @@ Task("CreatePackage")
 {
     EnsureDirectoryExists("nuget");
 
-    Information("Received version: " + version);
     var formattedNugetVersion = FormatNugetVersion(version);
-    Information("Formatted version: " + formattedNugetVersion);
 
     var filesToPackPatterns = new string[]
         {
