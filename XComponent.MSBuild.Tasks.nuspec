@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>XComponent.MSBuild.Tasks</id>
+    <authors>XComponent team</authors>
+    <owners>XComponent team</owners>
+    <projectUrl>https://github.com/xcomponent/XComponent.MSBuild.Tasks.Net</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xcomponent/XComponent.MSBuild.Tasks/master/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>MSBuild custom tasks to help with the build process</description>
+    <copyright>Copyright 2017</copyright>
+    <tags>MSBuild Tasks custom xcomponent</tags>
+  </metadata>
+</package>
