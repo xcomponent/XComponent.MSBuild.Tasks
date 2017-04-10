@@ -4,8 +4,8 @@
 #addin "Cake.Incubator&version=1.0.56"
 
 var target = Argument("target", "Build");
-var buildConfiguration = Argument("Configuration", "Release");
-var version = Argument("Version", "1.0.0-build1");
+var buildConfiguration = Argument("BuildConfiguration", "Release");
+var version = Argument("BuildVersion", "1.0.0-build1");
 var apiKey = Argument("NugetKey", "");
 
 Task("Clean")
