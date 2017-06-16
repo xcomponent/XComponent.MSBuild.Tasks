@@ -1,5 +1,7 @@
 # XComponent MSBuild Tasks
 
+[![](http://slack.xcomponent.com/badge.svg)](http://slack.xcomponent.com/)
+
 <img src="logo.png" width="64" height="64" />
 
 This project contains custom MSBuild tasks developed by XComponent team.
