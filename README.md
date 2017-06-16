@@ -1,6 +1,7 @@
 # XComponent MSBuild Tasks
 
 [![](http://slack.xcomponent.com/badge.svg)](http://slack.xcomponent.com/)
+[![NuGet](https://img.shields.io/nuget/v/XComponent.MSBuild.Tasks.svg)](https://www.nuget.org/packages/XComponent.MSBuild.Tasks)
 
 <img src="logo.png" width="64" height="64" />
 
