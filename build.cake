@@ -1,5 +1,4 @@
 #tool "nuget:?package=NUnit.Runners&version=2.6.4"
-#tool "nuget:?package=ILRepack"
 #load "cake.scripts/utilities.cake"
 #addin "Cake.FileHelpers"
 #addin "Cake.Incubator&version=1.0.56"
@@ -48,28 +47,7 @@ Task("Test")
     NUnit(testAssemblies, nunitSettings);
 });
 
-Task("Merge")
-    .Does(() =>
-    {
-        EnsureDirectoryExists("packaging");
-
-        var filesToMerge = GetFiles("./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/*.dll");
-
-        var ilRepackSettings = new ILRepackSettings { Parallel = true, Internalize = true };
-
-        ILRepack(
-            "./packaging/XComponent.MSBuild.Tasks.dll",
-            "./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/XComponent.MSBuild.Tasks.dll",
-            filesToMerge,
-            ilRepackSettings
-		);
-
-        var pdbFiles = GetFiles("./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/XComponent.MSBuild.Tasks.pdb");
-        CopyFiles(pdbFiles, "./packaging");
-    });
-
 Task("CreatePackage")
-    .IsDependentOn("Merge")
     .Does(() =>
     {
         EnsureDirectoryExists("nuget");
@@ -78,8 +56,8 @@ Task("CreatePackage")
 
         var filesToPackPatterns = new string[]
             {
-                "./packaging/*.dll",
-                "./packaging/*.pdb"
+                "./XComponent.MSBuild.Tasks/bin/" + buildConfiguration + "/*.dll",
+                "./XComponent.MSBuild.Tasks/bin/" + buildConfiguration + "/*.pdb",
             };
 
         var filesToPack = GetFiles(filesToPackPatterns);
