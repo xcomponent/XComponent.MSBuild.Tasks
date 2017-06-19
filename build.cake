@@ -1,4 +1,5 @@
 #tool "nuget:?package=NUnit.Runners&version=2.6.4"
+#tool "nuget:?package=ILRepack"
 #load "cake.scripts/utilities.cake"
 #addin "Cake.FileHelpers"
 #addin "Cake.Incubator&version=1.0.56"
@@ -47,61 +48,73 @@ Task("Test")
     NUnit(testAssemblies, nunitSettings);
 });
 
+Task("Merge")
+    .Does(() =>
+    {
+        EnsureDirectoryExists("packaging");
+
+        var filesToMerge = GetFiles("./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/*.dll");
+
+        var ilRepackSettings = new ILRepackSettings { Parallel = true, Internalize = true };
+
+        ILRepack(
+            "./packaging/XComponent.MSBuild.Tasks.dll",
+            "./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/XComponent.MSBuild.Tasks.dll",
+            filesToMerge,
+            ilRepackSettings
+		);
+
+        var pdbFiles = GetFiles("./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/XComponent.MSBuild.Tasks.pdb");
+        CopyFiles(pdbFiles, "./packaging");
+    });
+
 Task("CreatePackage")
-.Does(() =>
-{
-    EnsureDirectoryExists("nuget");
+    .IsDependentOn("Merge")
+    .Does(() =>
+    {
+        EnsureDirectoryExists("nuget");
 
-    var formattedNugetVersion = FormatNugetVersion(version);
+        var formattedNugetVersion = FormatNugetVersion(version);
 
-    var filesToPackPatterns = new string[]
-        {
-            "./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/*.dll",
-            "./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/*.pdb",
-            "./XComponent.MSBuild.Tasks/bin/"+ buildConfiguration + "/*.xml"
+        var filesToPackPatterns = new string[]
+            {
+                "./packaging/*.dll",
+                "./packaging/*.pdb"
+            };
+
+        var filesToPack = GetFiles(filesToPackPatterns);
+
+        var nuSpecContents = filesToPack.Select(file => new NuSpecContent {Source = file.FullPath, Target = @"lib\net451"}).ToList();
+
+        var nugetPackSettings = new NuGetPackSettings()
+        { 
+            OutputDirectory = @"./nuget",
+            Files = nuSpecContents,
+            Version = formattedNugetVersion,
+            IncludeReferencedProjects = true
         };
 
-    var filesToPack = GetFiles(filesToPackPatterns);
-
-    var nuSpecContents = new List<NuSpecContent>();
-
-    foreach (var file in filesToPack)
-    {
-        if (!file.FullPath.Contains("CodeAnalysisLog.xml"))
-        {
-            nuSpecContents.Add(new NuSpecContent {Source = file.FullPath, Target = @"lib\net451"});
-        }
-    }
-
-    var nugetPackSettings = new NuGetPackSettings()
-    { 
-        OutputDirectory = @"./nuget",
-        Files = nuSpecContents,
-        Version = formattedNugetVersion,
-        IncludeReferencedProjects = true
-    };
-
-    NuGetPack("XComponent.MSBuild.Tasks.nuspec", nugetPackSettings);
-});
+        NuGetPack("XComponent.MSBuild.Tasks.nuspec", nugetPackSettings);
+    });
 
 Task("PushPackage")
-.IsDependentOn("All")
-.Does(() =>
-{
-    var formattedNugetVersion = FormatNugetVersion(version);
-    if (FileExists("./nuget/XComponent.MSBuild.Tasks." + formattedNugetVersion + ".nupkg")
-        && !string.IsNullOrEmpty(apiKey))
+    .IsDependentOn("All")
+    .Does(() =>
     {
-        var package = "./nuget/XComponent.MSBuild.Tasks." + formattedNugetVersion + ".nupkg";
-        var nugetPushSettings = new NuGetPushSettings 
+        var formattedNugetVersion = FormatNugetVersion(version);
+        if (FileExists("./nuget/XComponent.MSBuild.Tasks." + formattedNugetVersion + ".nupkg")
+            && !string.IsNullOrEmpty(apiKey))
         {
-            Source = "https://www.nuget.org/api/v2/package",
-            ApiKey = apiKey
-        };
+            var package = "./nuget/XComponent.MSBuild.Tasks." + formattedNugetVersion + ".nupkg";
+            var nugetPushSettings = new NuGetPushSettings 
+            {
+                Source = "https://www.nuget.org/api/v2/package",
+                ApiKey = apiKey
+            };
 
-        NuGetPush(package, nugetPushSettings);
-    }
-});
+            NuGetPush(package, nugetPushSettings);
+        }
+    });
 
 Task("All")
   .IsDependentOn("Clean")

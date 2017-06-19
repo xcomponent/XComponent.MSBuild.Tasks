@@ -246,6 +246,7 @@ tools/Addins
 tools/Cake
 tools/Cake.XComponent
 tools/NUnit.Runners
+tools/ILRepack
 tools/nuget.exe
 tools/packages.config.md5sum
 
@@ -254,3 +255,4 @@ TestResults.xml
 
 # Nuget package
 nuget/
+packaging/
