@@ -11,32 +11,43 @@ var FormatNugetVersion = new Func<string, string>(currentVersion =>
     {
         versionType = "rc";
     }
+    else if (currentVersion.Contains("release"))
+    {
+        versionType = "release";
+    }
 
     if (!string.IsNullOrEmpty(versionType))
     {
         var versionComponents = currentVersion.Split('-');
         var majorVersion = versionComponents[0];
-        var buildVersion = versionComponents[1];
-        var buildNumberStr = buildVersion.Substring(
-                                    versionType.Length,
-                                    buildVersion.Length - versionType.Length);
 
-        var buildNumber = int.Parse(buildNumberStr);
-        var buildNumberPrefix = string.Empty;
-        if (buildNumber < 10)
+        if (versionType == "release")
         {
-            buildNumberPrefix = "00";
+            result = majorVersion;
         }
-        else if (buildNumber < 100)
+        else
         {
-            buildNumberPrefix = "0";
-        }
-        else if (buildNumber > 1000)
-        {
-            buildNumberPrefix = string.Empty;
-        }
+            var buildVersion = versionComponents[1];
+            var buildNumberStr = buildVersion.Substring(
+                                        versionType.Length,
+                                        buildVersion.Length - versionType.Length);
 
-        result = majorVersion + "-" + versionType + "v" + buildNumberPrefix + buildNumberStr;
+            var buildNumber = int.Parse(buildNumberStr);
+            var buildNumberPrefix = string.Empty;
+            if (buildNumber < 10)
+            {
+                buildNumberPrefix = "00";
+            }
+            else if (buildNumber < 100)
+            {
+                buildNumberPrefix = "0";
+            }
+            else if (buildNumber > 1000)
+            {
+                buildNumberPrefix = string.Empty;
+            }
+            result = majorVersion + "-" + versionType + "v" + buildNumberPrefix + buildNumberStr;
+        }
     }
 
     return result;
